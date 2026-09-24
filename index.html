@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nanowatt Humidity Sensor</title>
+<meta name="description" content="A 0.4 V, nanowatt dual-threshold humidity-sensor readout for compostable smart food packaging, designed in Cadence Virtuoso (gpdk045).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F5F0; --surface:#FFFFFF; --surface-2:#ECEEF0; --ink:#14213D; --text:#3F4A5A; --muted:#6B7483;
+  --line:#DDE1E6; --accent:#0E7C74; --accent-soft:#E3EFEC; --warn:#B4540A; --warn-soft:#FBEEE2;
+  --danger:#A63A2B; --danger-soft:#F8E4E0; --hero:#14213D; --hero-text:#F2EFE8; --hero-muted:#C8D2DF; --hero-accent:#6FD1C3;
+  --figure-bg:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1626; --surface:#172035; --surface-2:#1C2740; --ink:#EDEAE3; --text:#C3CAD6; --muted:#8E98A9;
+    --line:#2A3654; --accent:#6FD1C3; --accent-soft:#16363A; --warn:#E8A35C; --warn-soft:#3A2A1A;
+    --danger:#F08A78; --danger-soft:#3D1F1C; --hero:#0A1020; --hero-text:#F2EFE8; --hero-muted:#B5C0D0; --hero-accent:#6FD1C3;
+    --figure-bg:#FFFFFF;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1626; --surface:#172035; --surface-2:#1C2740; --ink:#EDEAE3; --text:#C3CAD6; --muted:#8E98A9;
+  --line:#2A3654; --accent:#6FD1C3; --accent-soft:#16363A; --warn:#E8A35C; --warn-soft:#3A2A1A;
+  --danger:#F08A78; --danger-soft:#3D1F1C; --hero:#0A1020; --hero-text:#F2EFE8; --hero-muted:#B5C0D0; --hero-accent:#6FD1C3;
+  --figure-bg:#FFFFFF;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.65 'IBM Plex Sans',system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;color:var(--ink);line-height:1.15;margin:0}
+h2{font-size:clamp(28px,4vw,40px);font-weight:600}
+h3{font-size:22px;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+code,.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.92em}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+section{padding:72px 0;border-top:1px solid var(--line)}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.lead{font-size:19px;max-width:760px;margin-top:14px}
+.stack{display:flex;flex-direction:column;gap:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+figure img{width:100%;height:auto;display:block;background:var(--figure-bg);border:1px solid var(--line);border-radius:12px;padding:10px}
+figcaption{font-size:14.5px;color:var(--muted)}
+/* nav */
+nav.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+nav.top .brand{font-weight:600;color:var(--ink);text-decoration:none;font-size:15px;white-space:nowrap}
+nav.top ul{display:flex;gap:20px;list-style:none;margin:0;padding:0;font-size:14.5px;overflow-x:auto}
+nav.top ul a{color:var(--muted);text-decoration:none;white-space:nowrap}
+nav.top ul a:hover{color:var(--ink)}
+.theme-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+/* hero */
+header.hero{background:var(--hero);color:var(--hero-text);padding:84px 0 72px}
+header.hero h1{color:var(--hero-text);font-size:clamp(34px,6vw,60px);font-weight:600;max-width:900px}
+header.hero .eyebrow{color:var(--hero-accent)}
+header.hero .lead{color:var(--hero-muted)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden;margin-top:44px}
+.stat{background:var(--hero);padding:20px 22px}
+.stat b{display:block;font-family:'Source Serif 4',Georgia,serif;font-size:34px;font-weight:600;color:var(--hero-accent);line-height:1.1}
+.stat span{font-size:14px;color:var(--hero-muted)}
+.meta{margin-top:28px;font-size:14.5px;color:var(--hero-muted)}
+.meta a{color:var(--hero-accent)}
+/* chain */
+.power-rail{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--warn-soft);border:1px dashed var(--warn);border-radius:12px;padding:12px 16px;font-size:15px;color:var(--ink);margin-top:32px}
+.power-rail .tag{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn)}
+.power-rail .step{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 10px}
+.power-rail .arr{color:var(--warn)}
+.chain{display:grid;grid-template-columns:1fr 34px 1fr 34px 1.25fr 34px 1fr;align-items:stretch;margin-top:18px}
+.chain .node{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.chain .node.core{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.chain .node small{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.chain .node h3{font-size:19px;margin-bottom:6px}
+.chain .node p{font-size:14.5px;line-height:1.5}
+.chain .arrow{display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.chain .arrow svg{width:26px;height:26px}
+.pair{display:flex;flex-direction:column;gap:10px}
+.pair .node{padding:14px 16px}
+.mini{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted)}
+/* chart */
+.chart-card svg{width:100%;height:auto;display:block}
+.chart-card .ax{stroke:var(--line);stroke-width:1}
+.chart-card .tick{fill:var(--muted);font:12px 'IBM Plex Sans',sans-serif}
+.chart-card .curve{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.chart-card .thrA{stroke:var(--warn);stroke-width:2;stroke-dasharray:6 5}
+.chart-card .thrB{stroke:var(--danger);stroke-width:2;stroke-dasharray:6 5}
+.chart-card .lblA{fill:var(--warn);font:600 12.5px 'IBM Plex Sans',sans-serif}
+.chart-card .lblB{fill:var(--danger);font:600 12.5px 'IBM Plex Sans',sans-serif}
+.chart-card .zone-danger{fill:var(--danger-soft)}
+.chart-card .zone-caution{fill:var(--warn-soft)}
+.chart-card .zone-safe{fill:var(--accent-soft)}
+.chart-card .zl{font:600 12px 'IBM Plex Sans',sans-serif;letter-spacing:.06em}
+.chart-card .dot{fill:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{color:var(--ink);font-weight:600;background:var(--surface-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+/* states */
+.state{border-radius:14px;padding:20px 22px;border:1px solid var(--line);background:var(--surface)}
+.state .badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:99px;margin-bottom:10px}
+.state.safe .badge{background:var(--accent-soft);color:var(--accent)}
+.state.caution .badge{background:var(--warn-soft);color:var(--warn)}
+.state.danger .badge{background:var(--danger-soft);color:var(--danger)}
+.state dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:10px 0 0;font-size:15px}
+.state dt{color:var(--muted)}
+.state dd{margin:0;color:var(--ink);font-variant-numeric:tabular-nums}
+.outs{display:flex;gap:8px;margin-top:12px}
+.out{font:500 13px 'IBM Plex Mono',monospace;padding:4px 9px;border-radius:6px;border:1px solid var(--line)}
+.out.hi{background:var(--surface-2);color:var(--ink)}
+.out.lo{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* power bars */
+.bars{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.bar{display:grid;grid-template-columns:150px 1fr 100px;align-items:center;gap:14px;font-size:15px}
+.bar .track{height:14px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:99px}
+.bar b{color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+/* stack */
+.pack{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.layer{padding:14px 18px;display:flex;justify-content:space-between;gap:16px;font-size:15px}
+.layer b{color:var(--ink)}
+.layer span{color:var(--muted);text-align:right}
+.l-window{background:repeating-linear-gradient(90deg,var(--accent-soft) 0 14px,var(--surface) 14px 22px)}
+.l-sensor{background:var(--warn-soft)}
+.l-core{background:var(--surface-2)}
+.l-pla{background:var(--accent-soft)}
+.food{padding:10px 18px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--bg);text-align:center}
+ol.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
+ol.steps b{color:var(--ink)}
+.callout{border-left:4px solid var(--accent);background:var(--accent-soft);padding:16px 20px;border-radius:0 12px 12px 0;color:var(--ink)}
+footer{padding:48px 0 64px;border-top:1px solid var(--line);font-size:14.5px;color:var(--muted)}
+footer a{color:var(--accent)}
+ul.refs{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+@media (max-width:900px){
+  .chain{grid-template-columns:1fr}
+  .chain .arrow{height:30px}
+  .chain .arrow svg{transform:rotate(90deg)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid2,.grid3{grid-template-columns:1fr}
+  nav.top ul{display:none}
+}
+@media (max-width:520px){
+  body{font-size:16px}
+  section{padding:56px 0}
+  .bar{grid-template-columns:100px 1fr 86px;font-size:14px}
+  .bar b{white-space:nowrap}
+  .layer{flex-direction:column;gap:2px}
+  .layer span{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Nanowatt Humidity Sensor</a>
+    <ul>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#design">Design</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#layout">Layout</a></li>
+      <li><a href="#packaging">Packaging</a></li>
+      <li><a href="#team">Team</a></li>
+    </ul>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme">Theme</button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <p class="eyebrow">VLSI design project · IUT · 2025</p>
+    <h1>A 0.4 V humidity-sensor readout that runs on nanowatts, built for compostable food packaging</h1>
+    <p class="lead">A printed graphene-oxide humidity sensor feeds two 6-transistor CMOS Schmitt triggers that raise a two-level alarm: <i>caution</i> at about 60% RH and <i>danger</i> at about 75% RH. The circuit runs from a 0.4 V supply, is designed to be powered on demand by an RF coil, and was taken from schematic to layout in Cadence Virtuoso.</p>
+    <div class="stats">
+      <div class="stat"><b>0.4 V</b><span>supply, subthreshold CMOS</span></div>
+      <div class="stat"><b>73–133 nW</b><span>static power, by output state</span></div>
+      <div class="stat"><b>2 levels</b><span>alarms at ≈60% and ≈75% RH</span></div>
+      <div class="stat"><b>45 nm</b><span>gpdk045, Cadence Virtuoso</span></div>
+    </div>
+    <p class="meta">Md Wahiduzzaman, Elmul Soad Swopno, Md Rahib-bin-Hossain · EEE 4861 VLSI Design, Islamic University of Technology · supervised by Dr. Md Masum Billah</p>
+  </div>
+</header>
+
+<main>
+
+<section id="why">
+  <div class="wrap grid2">
+    <div class="stack">
+      <p class="eyebrow">The problem</p>
+      <h2>Humidity decides how fast food spoils</h2>
+      <p>In Bangladesh, much food and grocery stock is sold with little or no protective packaging, which adds to post-harvest losses and food-safety risk. Excess humidity inside a package speeds up mould and bacterial growth. A package that could report "this got too humid" would catch spoilage early.</p>
+      <p>The catch: sensing electronics on a single-use package must be almost free, almost powerless and compostable. That rules out batteries, microcontrollers and conventional plastic.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:12px">Safe storage humidity by food type</h3>
+      <table>
+        <tr><th>Food</th><th class="num">Safe RH</th></tr>
+        <tr><td>Powdered foods, spices</td><td class="num">30–40%</td></tr>
+        <tr><td>Confectionery</td><td class="num">45–55%</td></tr>
+        <tr><td>Dry grains, cereals, nuts</td><td class="num">50–60%</td></tr>
+        <tr><td>Baked goods</td><td class="num">60–70%</td></tr>
+        <tr><td>Dairy (cheese, butter)</td><td class="num">65–75%</td></tr>
+        <tr><td>Fresh produce, meat, fish</td><td class="num">85–95%</td></tr>
+      </table>
+      <p class="mini" style="margin-top:10px">Our 60% / 75% thresholds target dry goods. Other foods need re-tuned thresholds.</p>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2>From humidity to a two-bit alarm</h2>
+    <p class="lead">Three stages, no microcontroller. The sensor turns humidity into resistance, a divider turns resistance into voltage, and two Schmitt triggers turn voltage into two clean digital flags.</p>
+
+    <div class="power-rail" aria-label="Power path">
+      <span class="tag">Power, on demand</span>
+      <span class="step">Phone or reader RF field</span><span class="arr">→</span>
+      <span class="step">Resonant coil on package</span><span class="arr">→</span>
+      <span class="step">Rectifier + storage capacitor</span><span class="arr">→</span>
+      <span class="step"><b>0.4 V rail</b> for all blocks</span>
+    </div>
+
+    <div class="chain" role="list">
+      <div class="node" role="listitem">
+        <small>1 · Sense</small>
+        <h3>Graphene-oxide chemiresistor</h3>
+        <p>Printed film whose resistance falls as it absorbs water: <b>1.2 MΩ</b> at 30% RH down to <b>0.2 MΩ</b>.</p>
+      </div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+      <div class="node" role="listitem">
+        <small>2 · Convert</small>
+        <h3>Resistive divider</h3>
+        <p>With a fixed <b>R2 = 1 MΩ</b> to ground:<br><span class="mono">V<sub>x</sub> = 0.4 V · R2 / (R1 + R2)</span></p>
+      </div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+      <div class="pair" role="listitem">
+        <div class="node core">
+          <small>3a · Decide</small>
+          <h3>Schmitt trigger A</h3>
+          <p>Trips at <b>242 mV</b> (≈60% RH)</p>
+        </div>
+        <div class="node core">
+          <small>3b · Decide</small>
+          <h3>Schmitt trigger B</h3>
+          <p>Trips at <b>275 mV</b> (≈75% RH)</p>
+        </div>
+      </div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+      <div class="node" role="listitem">
+        <small>4 · Report</small>
+        <h3>Two digital flags</h3>
+        <p>OUT1 low = caution, OUT2 low = danger. Hysteresis <b>holds</b> the alarm until the next read.</p>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:32px">
+      <figure>
+        <img src="assets/dual-threshold-schematic.png" alt="Cadence schematic: sensor resistor R0 and fixed 1 megohm resistor R1 form a divider from a 0.4 volt source; the midpoint drives the VIN of two Schmitt trigger symbols with outputs Vout and Vout2" loading="lazy" width="1017" height="727">
+        <figcaption>Top-level schematic in Virtuoso: the sensor (R0, swept) and the 1 MΩ reference form the divider; its midpoint drives both Schmitt triggers from a 0.4 V source.</figcaption>
+      </figure>
+      <div class="stack">
+        <h3>Why Schmitt triggers, not comparators?</h3>
+        <p>A comparator needs a reference voltage and a bias current, and that current alone would exceed our whole power budget. A Schmitt trigger is just six transistors: its switching threshold is set by transistor sizing, so the reference is built into the layout.</p>
+        <p>Hysteresis gives two more wins. The output doesn't chatter when humidity hovers near a threshold. And because the output only flips back when the input drops well below the trip point, it works as a one-bit memory: a humid event is still recorded when the package is read days later.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="design">
+  <div class="wrap">
+    <p class="eyebrow">Design</p>
+    <h2>Setting the two thresholds</h2>
+    <p class="lead">The divider maps each humidity level to a voltage. We sized each Schmitt trigger so it trips exactly where the curve crosses the caution and danger levels.</p>
+
+    <div class="grid2" style="margin-top:32px; align-items:start">
+      <div class="card chart-card">
+        <svg viewBox="0 0 640 380" role="img" aria-label="Divider output voltage versus sensor resistance. The curve falls from 333 millivolts at 0.2 megohms to 182 millivolts at 1.2 megohms. It crosses the 275 millivolt danger threshold at 0.454 megohms and the 242 millivolt caution threshold at 0.651 megohms.">
+          <rect class="zone-danger" x="60" y="20" width="139.7" height="300"/>
+          <rect class="zone-caution" x="199.7" y="20" width="108.3" height="300"/>
+          <rect class="zone-safe" x="308" y="20" width="302" height="300"/>
+          <line class="ax" x1="60" y1="320" x2="610" y2="320"/>
+          <line class="ax" x1="60" y1="20" x2="60" y2="320"/>
+          <g class="tick">
+            <text x="52" y="292" text-anchor="end">180</text>
+            <text x="52" y="229" text-anchor="end">220</text>
+            <text x="52" y="166" text-anchor="end">260</text>
+            <text x="52" y="103" text-anchor="end">300</text>
+            <text x="52" y="40" text-anchor="end">340</text>
+            <text x="60" y="340" text-anchor="middle">0.2</text>
+            <text x="170" y="340" text-anchor="middle">0.4</text>
+            <text x="280" y="340" text-anchor="middle">0.6</text>
+            <text x="390" y="340" text-anchor="middle">0.8</text>
+            <text x="500" y="340" text-anchor="middle">1.0</text>
+            <text x="610" y="340" text-anchor="middle">1.2</text>
+            <text x="335" y="368" text-anchor="middle">Sensor resistance R1 (MΩ): higher humidity is to the left</text>
+            <text x="16" y="170" text-anchor="middle" transform="rotate(-90 16 170)">Divider output Vx (mV)</text>
+          </g>
+          <line class="thrB" x1="60" y1="138.4" x2="610" y2="138.4"/>
+          <line class="thrA" x1="60" y1="190.5" x2="610" y2="190.5"/>
+          <text class="lblB" x="604" y="131" text-anchor="end">Trigger B: 275 mV</text>
+          <text class="lblA" x="604" y="183" text-anchor="end">Trigger A: 242 mV</text>
+          <polyline class="curve" points="60,46.3 115,86.8 170,121.5 225,151.6 280,177.9 335,201.1 390,221.8 445,240.3 500,256.8 555,271.9 610,285.6"/>
+          <circle class="dot" cx="199.7" cy="138.4" r="5"/>
+          <circle class="dot" cx="308" cy="190.5" r="5"/>
+          <circle class="dot" cx="610" cy="285.6" r="5"/>
+          <text class="zl" x="129.8" y="306" text-anchor="middle" style="fill:var(--danger)">DANGER</text>
+          <text class="zl" x="253.8" y="306" text-anchor="middle" style="fill:var(--warn)">CAUTION</text>
+          <text class="zl" x="459" y="306" text-anchor="middle" style="fill:var(--accent)">SAFE</text>
+          <text class="tick" x="208" y="118">454 kΩ ≈ 75% RH</text>
+          <text class="tick" x="316" y="176">651 kΩ ≈ 60% RH</text>
+          <text class="tick" x="604" y="306" text-anchor="end">≈30% RH</text>
+        </svg>
+        <p class="mini" style="margin-top:8px">Curve computed from V<sub>x</sub> = 400 mV / (1 + R1/1 MΩ). Crossing points match the Spectre sweep below.</p>
+      </div>
+
+      <div class="stack">
+        <figure>
+          <img src="assets/schmitt-6t.png" alt="Six-transistor inverting Schmitt trigger: stacked PMOS M4, M3 and NMOS M2, M1 with feedback transistors M6 and M5 connected to the output" loading="lazy" width="520" height="466" style="max-width:360px">
+          <figcaption>The classic 6T inverting Schmitt trigger. M5 and M6 feed the output back into the stack, which moves the trip point depending on the current output state.</figcaption>
+        </figure>
+        <div class="card">
+          <h3 style="margin-bottom:10px">Transistor widths (L = 45 nm)</h3>
+          <table>
+            <tr><th>Device</th><th class="num">Trigger A · 242 mV</th><th class="num">Trigger B · 275 mV</th></tr>
+            <tr><td>W1, W2</td><td class="num">120 nm</td><td class="num">120 nm</td></tr>
+            <tr><td>W3, W4</td><td class="num">240 nm</td><td class="num">840 nm</td></tr>
+            <tr><td>W5</td><td class="num">240 nm</td><td class="num">4.8 µm</td></tr>
+            <tr><td>W6</td><td class="num">240 nm</td><td class="num">120 nm</td></tr>
+          </table>
+          <p class="mini" style="margin-top:10px">Channel length fixed; only widths were tuned to place each trip point.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:32px">
+      <figure>
+        <img src="assets/vtc-242mv.png" alt="Spectre DC transfer curve of the low-threshold Schmitt trigger switching sharply near 242 millivolts" loading="lazy" width="1600" height="618">
+        <figcaption>Transfer curve, trigger A: a sharp switch near 242 mV.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/vtc-275mv.png" alt="Spectre DC transfer curve of the high-threshold Schmitt trigger switching sharply near 275 millivolts" loading="lazy" width="1600" height="618">
+        <figcaption>Transfer curve, trigger B: a sharp switch near 275 mV.</figcaption>
+      </figure>
+    </div>
+    <figure style="margin-top:24px; max-width:640px">
+      <img src="assets/hysteresis.png" alt="Hysteresis sweep of the 242 millivolt Schmitt trigger: the up and down sweeps switch at different input voltages" loading="lazy" width="996" height="640">
+      <figcaption>Hysteresis of trigger A: the rising and falling sweeps switch at different inputs, which is what rejects noise and holds the alarm state.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <p class="eyebrow">Results (simulation)</p>
+    <h2>Clean switching, nanowatt power</h2>
+    <p class="lead">We swept the sensor resistance from 1.2 MΩ down to 0.2 MΩ in Spectre, which is the same as humidity rising, and watched both outputs.</p>
+
+    <figure style="margin-top:28px">
+      <img src="assets/resistance-sweep.png" alt="Spectre DC response versus sensor resistance: the divider voltage falls as resistance rises; output 2 switches at 453.5 kilohms where the divider is 275.2 millivolts and output 1 switches at 651.5 kilohms where the divider is 242.2 millivolts" loading="lazy" width="1600" height="618">
+      <figcaption>Read right to left as humidity rises. Trigger A flips at <b>651 kΩ</b> (V<sub>x</sub> = 242.2 mV) and trigger B at <b>454 kΩ</b> (275.2 mV). Each output completes its swing within about 6 mV of input change.</figcaption>
+    </figure>
+
+    <div class="grid3" style="margin-top:32px">
+      <div class="state safe">
+        <span class="badge">Safe</span>
+        <h3>Below both thresholds</h3>
+        <dl><dt>Humidity</dt><dd>≈30% RH</dd><dt>R1</dt><dd>≈1.2 MΩ</dd><dt>V<sub>x</sub></dt><dd>≈182 mV</dd></dl>
+        <div class="outs"><span class="out hi">OUT1 HIGH</span><span class="out hi">OUT2 HIGH</span></div>
+      </div>
+      <div class="state caution">
+        <span class="badge">Caution</span>
+        <h3>Storage limit exceeded</h3>
+        <dl><dt>Humidity</dt><dd>≈60% RH</dd><dt>R1</dt><dd>≈650 kΩ</dd><dt>V<sub>x</sub></dt><dd>≈242 mV</dd></dl>
+        <div class="outs"><span class="out lo">OUT1 LOW</span><span class="out hi">OUT2 HIGH</span></div>
+      </div>
+      <div class="state danger">
+        <span class="badge">Danger</span>
+        <h3>Likely spoiled</h3>
+        <dl><dt>Humidity</dt><dd>≈75% RH</dd><dt>R1</dt><dd>≈450 kΩ</dd><dt>V<sub>x</sub></dt><dd>≈276 mV</dd></dl>
+        <div class="outs"><span class="out lo">OUT1 LOW</span><span class="out lo">OUT2 LOW</span></div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:36px; align-items:center">
+      <div class="card">
+        <h3 style="margin-bottom:6px">Static power at 0.4 V</h3>
+        <p class="mini" style="margin-bottom:14px">Whole readout, both triggers plus divider</p>
+        <div class="bars">
+          <div class="bar"><span>Both HIGH (safe)</span><div class="track"><div class="fill" style="width:54.7%"></div></div><b>72.96 nW</b></div>
+          <div class="bar"><span>One LOW (caution)</span><div class="track"><div class="fill" style="width:60.3%"></div></div><b>80.38 nW</b></div>
+          <div class="bar"><span>Both LOW (danger)</span><div class="track"><div class="fill" style="width:100%"></div></div><b>133.35 nW</b></div>
+        </div>
+      </div>
+      <div class="stack">
+        <h3>What tens of nanowatts buys</h3>
+        <p>At 0.4 V every transistor sits in weak inversion, so the only current is subthreshold leakage. At about 100 nW, one joule of energy would run the readout continuously for roughly four months.</p>
+        <p>In practice it doesn't need to run continuously at all. It only has to wake while a phone or reader is held near the package, and the hysteresis remembers what happened in between.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="layout">
+  <div class="wrap">
+    <p class="eyebrow">Physical design</p>
+    <h2>From stick diagram to layout</h2>
+    <p class="lead">The 6T Schmitt trigger was planned as a stick diagram, then drawn in two tools: Microwind and Cadence Virtuoso Layout XL.</p>
+    <div class="grid3" style="margin-top:28px">
+      <figure>
+        <img src="assets/stick-diagram.png" alt="Stick diagram of the 6T Schmitt trigger showing p-diffusion, n-diffusion, polysilicon, metal 1 and metal 2 lines" loading="lazy" width="1600" height="900">
+        <figcaption>Stick diagram: diffusion, poly and metal routing planned first.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/layout-microwind.png" alt="Microwind layout of the Schmitt trigger with VDD and VSS rails, input and output" loading="lazy" width="1087" height="757">
+        <figcaption>Microwind layout.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/layout-virtuoso.png" alt="Cadence Virtuoso Layout XL view of the Schmitt trigger with VDD and GND rails, VIN and VOUT pins and labelled internal nets" loading="lazy" width="1600" height="1212">
+        <figcaption>Virtuoso Layout XL, gpdk045.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="packaging">
+  <div class="wrap">
+    <p class="eyebrow">System integration</p>
+    <h2>Putting it on a compostable package</h2>
+    <div class="grid2" style="margin-top:28px; align-items:start">
+      <div class="stack">
+        <h3>Proposed laminate, outside to inside</h3>
+        <div class="pack" aria-label="Package cross-section">
+          <div class="layer l-window"><b>Breathable window</b><span>Vapour-permeable membrane over the sensing film; keeps liquid water out</span></div>
+          <div class="layer l-sensor"><b>Sensor zone</b><span>Printed carbon electrodes, humidity film, Schmitt-trigger micro-die on conductive adhesive</span></div>
+          <div class="layer l-core"><b>Paper / nanocellulose core</b><span>Strength and gas barrier; low-temperature printable</span></div>
+          <div class="layer l-pla"><b>PLA film</b><span>Food-contact layer, compostable</span></div>
+          <div class="food">Food</div>
+        </div>
+        <p>We compared PLA laminates with coated paper, PHA, starch and edible films. PLA–paper–nanocellulose balances printability, food safety and compostability at a moderate cost.</p>
+      </div>
+      <div class="stack">
+        <h3>Process flow</h3>
+        <ol class="steps">
+          <li><b>Prepare substrate:</b> laminate PLA onto a paper or nanocellulose layer, then plasma-treat it for ink adhesion.</li>
+          <li><b>Print electrodes:</b> interdigitated carbon electrodes, cured below 90 °C.</li>
+          <li><b>Deposit the sensing film:</b> a humidity-sensitive blend (starch/PVA or chitosan) bridging the electrodes.</li>
+          <li><b>Add the reference resistor:</b> a printed carbon trace, trimmed to set the divider point.</li>
+          <li><b>Mount the die:</b> bond the Schmitt-trigger chip with anisotropic conductive adhesive.</li>
+          <li><b>Seal and calibrate:</b> compostable lacquer, then a two-point check with 33% and 75% RH salt solutions.</li>
+        </ol>
+        <div class="card" style="margin-top:8px">
+          <h3 style="margin-bottom:8px">Cost per pouch</h3>
+          <table>
+            <tr><th></th><th class="num">Plastic</th><th class="num">Proposed</th></tr>
+            <tr><td>Material (50 g)</td><td class="num">$0.084</td><td class="num">$0.110</td></tr>
+            <tr><td>Fabrication</td><td class="num">$0.020</td><td class="num">$0.030</td></tr>
+            <tr><th>Total</th><th class="num">$0.104</th><th class="num">$0.140</th></tr>
+          </table>
+          <p class="mini" style="margin-top:10px">Packaging only, before the sensor die. About 35% more per unit, expected to fall with scale.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap grid2">
+    <div class="stack">
+      <p class="eyebrow">Limitations</p>
+      <h2>What this doesn't show yet</h2>
+      <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px">
+        <li>All results are from simulation. Nothing has been fabricated or measured.</li>
+        <li>No process-corner, temperature or supply-variation analysis. Subthreshold trip points shift with all three.</li>
+        <li>The graphene-oxide sensor is a behavioural resistor model, not measured film data.</li>
+        <li>The RF harvesting front-end is proposed, not designed.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <p class="eyebrow">Next steps</p>
+      <h2>Where we'd take it</h2>
+      <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px">
+        <li>Corner and Monte Carlo analysis, plus temperature compensation of the trip points.</li>
+        <li>Design the rectifier and cold-start circuit, and size the storage capacitor for a phone-distance read.</li>
+        <li>DRC/LVS-clean layout of the full readout, then a small pilot to measure long-term sensor drift.</li>
+        <li>Per-food threshold sets, trimmed through the printed reference resistor.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="team">
+  <div class="wrap grid2">
+    <div class="stack">
+      <p class="eyebrow">Team</p>
+      <h2>Who built it</h2>
+      <p><b style="color:var(--ink)">Md Wahiduzzaman</b>, <b style="color:var(--ink)">Elmul Soad Swopno</b> and <b style="color:var(--ink)">Md Rahib-bin-Hossain</b>, Department of Electrical and Electronic Engineering, Islamic University of Technology (IUT), Gazipur, Bangladesh.</p>
+      <p>Course project for EEE 4861 (VLSI Design), submitted to Dr. Md Masum Billah.</p>
+      <div class="callout">Contact: <a href="mailto:rishwahid91@gmail.com">rishwahid91@gmail.com</a> · <a href="https://www.linkedin.com/in/md-wahiduzzaman9108">LinkedIn</a> · <a href="https://github.com/wahidRishad28">GitHub</a></div>
+    </div>
+    <div class="stack">
+      <p class="eyebrow">Key references</p>
+      <ul class="refs">
+        <li>L. A. P. Melek, A. L. da Silva Jr., M. C. Schneider, C. Galup-Montoro, "Analysis and design of the classical CMOS Schmitt trigger in subthreshold operation," <i>IEEE TCAS-I</i>, vol. 64, no. 4, 2017.</li>
+        <li>W.-S. Chung, M.-K. Kim, O. Yang, "Simple and high-sensitive resistance-to-time converter using current-mode Schmitt triggers," <i>IEICE Electronics Express</i>, vol. 9, no. 24, 2012.</li>
+        <li>M. Mraović et al., "Humidity sensors printed on recycled paper and cardboard," <i>Sensors</i>, vol. 14, no. 8, pp. 13628–13643, 2014.</li>
+        <li>H. M. Sasmitha et al., "A review on bio-based polymer polylactic acid (PLA) potential on food packaging," 2024.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">© 2025 Md Wahiduzzaman, Elmul Soad Swopno, Md Rahib-bin-Hossain. Simulation results from Cadence Virtuoso (Spectre) with the gpdk045 process design kit.</div>
+</footer>
+
+<script>
+(function(){
+  var btn=document.getElementById('themeBtn'), root=document.documentElement, key='hs-theme';
+  function apply(t){ if(t){root.setAttribute('data-theme',t);} else {root.removeAttribute('data-theme');} }
+  try{ apply(localStorage.getItem(key)); }catch(e){}
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    var next=cur==='dark'?'light':'dark'; apply(next);
+    try{ localStorage.setItem(key,next); }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
